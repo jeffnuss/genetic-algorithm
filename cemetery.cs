@@ -6,9 +6,12 @@ using System.Text;
 namespace graves {
     class cemetery {
         public int cemetery_id;
-        public string cemetery_name;
+        public string name;
         public float lat;
         public float lon;
+        public string city;
+        public string state;
+        public string country;
         public List<int> temps;
 
         //slime
