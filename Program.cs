@@ -16,8 +16,21 @@ namespace graves {
             //A friendly welcoming message
             Console.WriteLine("Welcome to the Cemetery Distance Calculator.  Reading the data");
 
-            //Reading in the data
+            //Step 1: Reading in the data
             readData();
+
+            //Step 2: Generate the first generation
+
+            // ---- Start Loop ---- //
+
+            //Step 3: Hooking up parents, making them have babies
+            // 3a: Do crossover
+            // 3b: Do mutation
+            // 3c: Do elitism           
+            
+            // ---- End Loop ------ //
+            
+            //Step 4: Generate Report
 
             //Pausing after running
             Console.ReadLine();

@@ -4,20 +4,23 @@ using System.Linq;
 using System.Text;
 
 namespace graves {
-    class cemetery {
-        public int cemetery_id;
-        public string name;
-        public float lat;
-        public float lon;
-        public string city;
-        public string state;
-        public string country;
-        public List<int> temps;
-        
-        public double distanceTo(int cemetery_id) {
-            cemetery c = Program.cems[cemetery_id];
+    /// <summary>
+    /// This class represents a sequence
+    /// </summary>
+    class genome {        
+        public List<int> sequence;  //the sequence of cemeteries to visit
 
-            return distance(this.lat, this.lon, c.lat, c.lon, 'M');
+        /// <summary>
+        /// Finding the distance from one cemetery to another
+        /// </summary>
+        /// <param name="id1">cemetery_id for one cemetery</param>
+        /// <param name="id2">cemetery_id for another cemetery</param>
+        /// <returns>a distance value in miles</returns>
+        public double distanceTo(int id1, int id2) {
+            cemetery c1 = Program.cems[id1];
+            cemetery c2 = Program.cems[id2];
+
+            return distance(c1.lat, c1.lon, c2.lat, c2.lon, 'M');
         }
 
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -63,5 +66,6 @@ namespace graves {
         static private double rad2deg(double rad) {
             return (rad / Math.PI * 180.0);
         }
+
     }
 }
