@@ -11,6 +11,7 @@ namespace graves {
         public float lon;
         public List<int> temps;
 
+        //slime
         public double distanceTo(int cemetery_id) {
             cemetery c = Program.cems[cemetery_id];
 
