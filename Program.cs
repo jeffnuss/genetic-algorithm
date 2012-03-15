@@ -10,6 +10,8 @@ namespace graves {
 
         //All cemeteries read in from the data file
         static public Dictionary<int, cemetery> cems = new Dictionary<int, cemetery>();
+        static public List<cemetery> cemsList = new List<cemetery>();
+        static public int idealTemp = 65;
 
         static void Main(string[] args) {
 
@@ -20,6 +22,15 @@ namespace graves {
             readData();
 
             //Step 2: Generate the first generation
+            Console.WriteLine("Generating the most responsible parents in the world");
+            List<genome> startgen = new List<genome>();
+            for (int i = 0; i < 12; i++) {
+                genome g = new genome();
+                g.randomize();
+                startgen.Add(g);               
+                
+                Console.WriteLine("Travel Miles: " + g.travelDist + " | Penalty: " + g.penalty);
+            }
 
             // ---- Start Loop ---- //
 
@@ -31,8 +42,10 @@ namespace graves {
             // ---- End Loop ------ //
             
             //Step 4: Generate Report
+            
 
             //Pausing after running
+            Console.WriteLine("Completed the Algorithm");
             Console.ReadLine();
         }
 
@@ -78,7 +91,7 @@ namespace graves {
 
                 //Adding the cemetery to the list
                 cems.Add(c.cemetery_id, c);
-
+                cemsList.Add(c);
             }
 
             //Closing the parser
