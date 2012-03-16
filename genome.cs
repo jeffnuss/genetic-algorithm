@@ -8,19 +8,84 @@ namespace graves {
     /// This class represents a sequence
     /// </summary>
     class genome {        
-        public List<int> sequence;  //the sequence of cemeteries to visit
+        
+        public List<int> sequence = new List<int>();  //the sequence of cemeteries to visit
+        public double travelDist = 0;
+        public double penalty = 0;
 
         /// <summary>
         /// Finding the distance from one cemetery to another
         /// </summary>
-        /// <param name="id1">cemetery_id for one cemetery</param>
-        /// <param name="id2">cemetery_id for another cemetery</param>
-        /// <returns>a distance value in miles</returns>
         public double distanceTo(int id1, int id2) {
-            cemetery c1 = Program.cems[id1];
-            cemetery c2 = Program.cems[id2];
-
+            cemetery c1 = Program.cemsList[id1];
+            cemetery c2 = Program.cemsList[id2];
             return distance(c1.lat, c1.lon, c2.lat, c2.lon, 'M');
+        }
+
+        /// <summary>
+        /// Populating this genome with a random sequence
+        /// </summary>
+        public void randomize(){
+
+            //Generating a list of integers to make the random list out of
+            List<int> cemids = new List<int>();
+            for (int i = 0; i < Program.cems.Count; i++) {
+                cemids.Add(i);
+            }
+
+            //Generating a random sequence of cemeteries
+            sequence.Clear();
+            foreach (var i in cemids.AsRandom()) {
+                sequence.Add(cemids[i]);
+            }
+
+            //Calculating the distance traveled
+            this.travelDistance();
+            this.calcPenalty();
+        }
+
+        /// <summary>
+        /// The total distance it takes to travel to all the cemeteries in the list 
+        /// </summary>
+        /// <returns></returns>
+        public double travelDistance() {
+
+            double totalDist = 0;
+
+            //Looping through the sequence, calculating numbers
+            for (int i = 0; i < this.sequence.Count-1; i++ ) {
+                int id1 = this.sequence[i];
+                int id2 = this.sequence[i + 1];
+                totalDist += this.distanceTo(id1, id2);
+            }
+
+            totalDist = Math.Ceiling(totalDist);
+
+            this.travelDist = totalDist;
+            return totalDist;
+        }
+        
+        /// <summary>
+        /// Calculating the penalty by taking the difference of the temperature on that day from the ideal
+        /// </summary>
+        public int calcPenalty() {
+            int p = 0;
+
+            int day = 0;
+            foreach (int i in sequence) {
+                cemetery c = Program.cemsList[i];
+                int temp = c.temps[day];
+                int difference = Math.Abs(Program.idealTemp - temp);
+                p += difference;
+                day++;
+            }
+
+            this.penalty = p;
+            return p;
+        }
+
+        public double fitness() {
+            return this.travelDist - this.penalty;
         }
 
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -67,5 +132,23 @@ namespace graves {
             return (rad / Math.PI * 180.0);
         }
 
+    }
+
+    /// <summary>
+    /// This holds the list randomizer
+    /// </summary>
+    public static class MyExtensions {
+        public static IEnumerable<T> AsRandom<T>(this IList<T> list) {
+            int[] indexes = Enumerable.Range(0, list.Count).ToArray();
+            Random generator = new Random((int)System.DateTime.UtcNow.Ticks);
+
+            for (int i = 0; i < list.Count; ++i) {
+                int position = generator.Next(i, list.Count);
+
+                yield return list[indexes[position]];
+
+                indexes[position] = indexes[i];
+            }
+        }
     }
 }
