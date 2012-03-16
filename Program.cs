@@ -12,6 +12,13 @@ namespace graves {
         static public Dictionary<int, cemetery> cems = new Dictionary<int, cemetery>();
         static public List<cemetery> cemsList = new List<cemetery>();
         static public int idealTemp = 65;
+        static int generationSize = 12;
+        static int tournamentSize = 3;
+        static double chanceOfCrossover = 0.8;
+        static double chanceOfMutation = 0.1;
+        static double eta = 0.5;
+        static double beta = 0.5;
+        static int totalGenerations = 100;
 
         static void Main(string[] args) {
 
@@ -24,7 +31,7 @@ namespace graves {
             //Step 2: Generate the first generation
             Console.WriteLine("Generating the most responsible parents in the world");
             List<genome> startgen = new List<genome>();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < generationSize; i++) {
                 genome g = new genome();
                 g.randomize();
                 startgen.Add(g);               
@@ -35,10 +42,26 @@ namespace graves {
             // ---- Start Loop ---- //
 
             //Step 3: Hooking up parents, making them have babies
-            // 3a: Do crossover
-            // 3b: Do mutation
-            // 3c: Do elitism           
-            
+            // 3a-1: Figure out parents
+            for (int i = 0; i < totalGenerations; i++)
+            {
+                List<parent> parents = getParents(startgen, tournamentSize);
+                List<genome> children = new List<genome>();
+
+                double alphaInner = 1 - ((i - 1) / totalGenerations);
+
+                foreach (parent p in parents)
+                {
+
+                    children.AddRange(p.getChildren(chanceOfCrossover, chanceOfMutation, alphaInner));
+                }
+
+                List<genome> nextGeneration = elitismTest(parents, children);
+
+                // 3a: Do crossover
+                // 3b: Do mutation
+                // 3c: Do elitism           
+            }
             // ---- End Loop ------ //
             
             //Step 4: Generate Report
@@ -99,7 +122,36 @@ namespace graves {
 
         }
       
-        
+
+        private static List<parent> getParents(List<genome> generation, int tournamentSize) {
+
+            List<parent> parents = new List<parent>();
+            Random randTourneyPlayer = new Random();
+            for (int i = 0; i < generation.Count; i++) {
+                
+                List<genome> motherCandidates = new List<genome>();
+                List<genome> fatherCandidates = new List<genome>();
+                for (int j = 0; j < tournamentSize; j++) {
+
+                    motherCandidates.Add(generation[randTourneyPlayer.Next(0, generation.Count + 1)]);
+                    fatherCandidates.Add(generation[randTourneyPlayer.Next(0, generation.Count + 1)]);
+                }
+                parents.Add(new parent(motherCandidates.Max(), fatherCandidates.Max()));
+            }
+
+            return parents;
+        }
+
+        /// <summary>
+        /// Have the children and the parents duke it out in an epic battle royale to see who emerges victorious
+        /// </summary>
+        /// <param name="parents">The parents</param>
+        /// <param name="children">The kids</param>
+        /// <returns>The strongest of the group</returns>
+        private static List<genome> elitismTest(List<parent> parents, List<genome> children) {
+
+            return null;
+        }
 
 
     }

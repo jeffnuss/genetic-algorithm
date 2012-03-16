@@ -9,12 +9,26 @@ namespace graves {
     /// </summary>
     class genome : IComparable{        
         
-        public List<int> sequence = new List<int>();  //the sequence of cemeteries to visit
-        public double travelDist = 0;
-        public double penalty = 0;
-        public double fitness
-        {
+        //the sequence of cemeteries to visit
+        public List<int> sequence { get; private set; }
+        public double travelDist {
+            get { return travelDist; }
+            private set;
+        }
+        public double penalty {
+            get { return penalty;  }
+            private set;
+        }
+        public double fitness {
             get { return this.travelDist - this.penalty; }
+            private set;
+        }
+
+        public genome()
+        {
+            penalty = 0;
+            travelDist = 0;
+            sequence = new List<int>();
         }
 
         /// <summary>
