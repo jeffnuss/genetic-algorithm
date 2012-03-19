@@ -7,11 +7,29 @@ namespace graves {
     /// <summary>
     /// This class represents a sequence
     /// </summary>
-    class genome {        
+    class genome : IComparable{        
         
-        public List<int> sequence = new List<int>();  //the sequence of cemeteries to visit
-        public double travelDist = 0;
-        public double penalty = 0;
+        //the sequence of cemeteries to visit
+        public List<int> sequence { get; private set; }
+        public double travelDist {
+            get { return travelDist; }
+            private set;
+        }
+        public double penalty {
+            get { return penalty;  }
+            private set;
+        }
+        public double fitness {
+            get { return this.travelDist - this.penalty; }
+            private set;
+        }
+
+        public genome()
+        {
+            penalty = 0;
+            travelDist = 0;
+            sequence = new List<int>();
+        }
 
         /// <summary>
         /// Finding the distance from one cemetery to another
@@ -84,10 +102,6 @@ namespace graves {
             return p;
         }
 
-        public double fitness() {
-            return this.travelDist - this.penalty;
-        }
-
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         //:::  Definitions:                                                           :::
         //:::    South latitudes are negative, east longitudes are positive           :::
@@ -132,6 +146,10 @@ namespace graves {
             return (rad / Math.PI * 180.0);
         }
 
+        public int CompareTo(genome genomeToCompare) {
+
+            return this.fitness.CompareTo(genomeToCompare.fitness);
+        }
     }
 
     /// <summary>
