@@ -86,6 +86,7 @@ namespace graves {
 
             //Pausing after running
             Console.WriteLine("Completed the Algorithm");
+            System.Diagnostics.Process.Start("maps.html");
             Console.ReadLine();
         }
 
