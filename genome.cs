@@ -2,20 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace graves {
 
     /// <summary>
     /// This class represents a sequence
     /// </summary>
-    class genome : IComparable {        
+    
+    [Serializable]
+    class genome : IComparable, ICloneable {        
         
         //the sequence of cemeteries to visit
         public List<int> sequence { get; private set; }
         public double travelDist { get; private set; }
         public double penalty { get; private set; }
         public double fitness {
-            get { return (this.travelDist - this.penalty); }
+            get { return (this.travelDist + this.penalty); }
             private set { this.fitness = value; }
         }
 
@@ -166,12 +170,22 @@ namespace graves {
         /// <returns>A list containing the two children</returns>
         public genome getChild(double chanceOfCrossover, double chanceOfMutation)
         {
-            genome child = this;
+            genome child = (genome)this.Clone();
             crossover(child, chanceOfCrossover);
             mutate(child, chanceOfMutation);
             child.travelDistance();
             child.calcPenalty();
             return child;
+        }
+
+        public object Clone()
+        {
+            BinaryFormatter BF = new BinaryFormatter();
+            MemoryStream memStream = new MemoryStream();
+            BF.Serialize(memStream, this);
+            memStream.Position = 0;
+
+            return (BF.Deserialize(memStream));
         }
 
         private bool crossover(genome child, double chanceOfCrossover)
@@ -186,7 +200,7 @@ namespace graves {
 
                 Random rand = new Random((int)System.DateTime.UtcNow.Ticks);
                 int crossoverSize = rand.Next(1, maxCrossoverSize);
-                int crossoverIndex = rand.Next(0, this.sequence.Count - crossoverSize);
+                int crossoverIndex = rand.Next(0, child.sequence.Count - crossoverSize);
                 child.sequence.Reverse(crossoverIndex, crossoverSize);
             }
             return true;

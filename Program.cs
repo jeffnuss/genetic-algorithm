@@ -19,8 +19,8 @@ namespace graves {
         static double chanceOfMutation = 0.001;
         static double eta = 0.5;
         static double beta = 0.5;
-        static int maxCrossoverSize = 10;
-        static int totalGenerations = 100;
+        static int maxCrossoverSize = 30;
+        static int totalGenerations = 1000;
 
         static void Main(string[] args) {
 
@@ -38,7 +38,7 @@ namespace graves {
                 genome g = new genome(beta, eta, maxCrossoverSize);
                 g.randomize();
                 // This is to allow our random number generator seeds to be a bit different
-                //System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(10);
                 startgen.Add(g);               
                 
                 Console.WriteLine("Travel Miles: " + g.travelDist + " | Penalty: " + g.penalty);
@@ -154,7 +154,6 @@ namespace graves {
                 }
                 parents.Add(candidates.Min());
             }
-
             return parents;
         }
 
