@@ -82,7 +82,7 @@ namespace graves {
             }
 
             //Generating the maps
-            createReport(startgen);
+            createReport(nextGeneration);
 
             //Pausing after running
             Console.WriteLine("Completed the Algorithm");
