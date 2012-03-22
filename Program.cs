@@ -38,7 +38,7 @@ namespace graves {
                 genome g = new genome(beta, eta, maxCrossoverSize);
                 g.randomize();
                 // This is to allow our random number generator seeds to be a bit different
-                System.Threading.Thread.Sleep(10);
+                //System.Threading.Thread.Sleep(10);
                 startgen.Add(g);               
                 
                 Console.WriteLine("Travel Miles: " + g.travelDist + " | Penalty: " + g.penalty);
@@ -139,7 +139,7 @@ namespace graves {
         private static List<genome> getParents(List<genome> generation, int tournamentSize) {
 
             List<genome> parents = new List<genome>();
-            Random randTourneyPlayer = new Random();
+            Random randTourneyPlayer = new Random((int)System.DateTime.UtcNow.Ticks);
             for (int i = 0; i < generation.Count; i++) {
                 
                 List<genome> candidates = new List<genome>();
@@ -171,6 +171,18 @@ namespace graves {
             return nextGeneration;
         }
 
+        /// <summary>
+        /// Writes information to a javascript file that will generate a map of the path
+        /// </summary>
+        public static void createReport() {
+            // Compose a string that consists of three lines.
+            string lines = "First line.\r\nSecond line.\r\nThird line.";
 
+            // Write the string to a file.
+            System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
+            file.WriteLine(lines);
+
+            file.Close();
+        }
     }
 }

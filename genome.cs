@@ -177,14 +177,14 @@ namespace graves {
         private bool crossover(genome child, double chanceOfCrossover)
         {
 
-            Random crossoverRand = new Random();
+            Random crossoverRand = new Random((int)System.DateTime.UtcNow.Ticks);
             if (crossoverRand.NextDouble() > chanceOfCrossover)
                 return false;
 
             else
             {
 
-                Random rand = new Random();
+                Random rand = new Random((int)System.DateTime.UtcNow.Ticks);
                 int crossoverSize = rand.Next(1, maxCrossoverSize);
                 int crossoverIndex = rand.Next(0, this.sequence.Count - crossoverSize);
                 child.sequence.Reverse(crossoverIndex, crossoverSize);
@@ -199,7 +199,7 @@ namespace graves {
 
             for (int i = 0; i < child.sequence.Count; i++)
             {
-                Random mutateRand = new Random();
+                Random mutateRand = new Random((int)System.DateTime.UtcNow.Ticks);
                 if (mutateRand.NextDouble() > chanceOfMutation)
                 {
                     continue;
