@@ -34,7 +34,7 @@ namespace graves {
         //:::                                                                         :::
         //:::  United States ZIP Code/ Canadian Postal Code databases with latitude   :::
         //:::  & longitude are available at http://www.zipcodeworld.com               :::
-        //:::                                                                         :::S
+        //:::                                                                         :::
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         static private double distance(double lat1, double lon1, double lat2, double lon2, char unit) {
             double theta = lon1 - lon2;

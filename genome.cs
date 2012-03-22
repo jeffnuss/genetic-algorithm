@@ -4,28 +4,35 @@ using System.Linq;
 using System.Text;
 
 namespace graves {
+
     /// <summary>
     /// This class represents a sequence
     /// </summary>
-    class genome : IComparable{        
+    class genome : IComparable {        
         
         //the sequence of cemeteries to visit
         public List<int> sequence { get; private set; }
-        public double travelDist {
-            get { return travelDist; }
-            private set;
-        }
-        public double penalty {
-            get { return penalty;  }
-            private set;
-        }
+        public double travelDist { get; private set; }
+        public double penalty { get; private set; }
         public double fitness {
-            get { return this.travelDist - this.penalty; }
-            private set;
+            get { return (this.travelDist - this.penalty); }
+            private set { this.fitness = value; }
         }
 
-        public genome()
+        public double eta { get; private set; }
+        public double beta { get; private set; }
+        public int maxCrossoverSize { get; private set; }
+
+        /// <summary>
+        /// Genome constructor
+        /// </summary>
+        /// <param name="eta">Crossover coefficient</param>
+        /// <param name="beta">Mutation coefficient</param>
+        public genome(double eta, double beta, int crossoverSize)
         {
+            this.eta = eta;
+            this.beta = beta;
+            this.maxCrossoverSize = crossoverSize;
             penalty = 0;
             travelDist = 0;
             sequence = new List<int>();
@@ -146,9 +153,67 @@ namespace graves {
             return (rad / Math.PI * 180.0);
         }
 
-        public int CompareTo(genome genomeToCompare) {
+        int IComparable.CompareTo(object genomeToCompare) {
 
-            return this.fitness.CompareTo(genomeToCompare.fitness);
+            return this.fitness.CompareTo(((genome)genomeToCompare).fitness);
+        }
+
+        /// <summary>
+        /// This method performs crossover and mutation to create two children
+        /// </summary>
+        /// <param name="chanceOfCrossover">The chance of crossover occuring</param>
+        /// <param name="chanceOfMutation">The chance of mutation occuring</param>
+        /// <returns>A list containing the two children</returns>
+        public genome getChild(double chanceOfCrossover, double chanceOfMutation)
+        {
+            genome child = this;
+            crossover(child, chanceOfCrossover);
+            mutate(child, chanceOfMutation);
+            child.travelDistance();
+            child.calcPenalty();
+            return child;
+        }
+
+        private bool crossover(genome child, double chanceOfCrossover)
+        {
+
+            Random crossoverRand = new Random();
+            if (crossoverRand.NextDouble() > chanceOfCrossover)
+                return false;
+
+            else
+            {
+
+                Random rand = new Random();
+                int crossoverSize = rand.Next(1, maxCrossoverSize);
+                int crossoverIndex = rand.Next(0, this.sequence.Count - crossoverSize);
+                child.sequence.Reverse(crossoverIndex, crossoverSize);
+            }
+            return true;
+        }
+
+        private bool mutate(genome child, double chanceOfMutation)
+        {
+
+            bool wasThereAnyMutation = false;
+
+            for (int i = 0; i < child.sequence.Count; i++)
+            {
+                Random mutateRand = new Random();
+                if (mutateRand.NextDouble() > chanceOfMutation)
+                {
+                    continue;
+                }
+                else
+                {
+                    int swapIndex = mutateRand.Next(0, child.sequence.Count);
+                    int geneToSwap = child.sequence[swapIndex];
+                    child.sequence[swapIndex] = child.sequence[i];
+                    child.sequence[i] = geneToSwap;
+                    wasThereAnyMutation = true;
+                }
+            }
+            return wasThereAnyMutation;
         }
     }
 
