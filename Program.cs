@@ -49,7 +49,7 @@ namespace graves {
             // 3a-1: Figure out parents
             List<genome> nextGeneration = startgen;
             for (int i = 0; i < totalGenerations; i++) {
-
+                Console.WriteLine("Total Generation " + i);
                 List<genome> parents = getParents(nextGeneration, tournamentSize);
                 List<genome> children = new List<genome>();
 
@@ -73,14 +73,18 @@ namespace graves {
             //Step 4: Generate Report
             
 
-            //Pausing after running
-
+            
+            //Outputting the results
             Console.WriteLine("\nResults:");
             foreach (genome g in nextGeneration)
             {
                 Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
             }
 
+            //Generating the maps
+            createReport(startgen);
+
+            //Pausing after running
             Console.WriteLine("Completed the Algorithm");
             Console.ReadLine();
         }
@@ -174,14 +178,24 @@ namespace graves {
         /// <summary>
         /// Writes information to a javascript file that will generate a map of the path
         /// </summary>
-        public static void createReport() {
-            // Compose a string that consists of three lines.
-            string lines = "First line.\r\nSecond line.\r\nThird line.";
+        public static void createReport(List<genome> genomes) {
 
-            // Write the string to a file.
+            //Initializing the file
             System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
-            file.WriteLine(lines);
+                                    
+            file.WriteLine("var genomes = new Array();");
+            file.WriteLine("var markers");
 
+            //Writing the data for each visit in the genome
+            foreach (genome g in genomes) {
+                file.WriteLine("markers = new Array();");
+                foreach (int i in g.sequence) {
+                    cemetery c = cemsList[i];
+                    file.WriteLine("markers.push({title:\"" + c.name + "\",lat:" + c.lat + ",lon:" + c.lon + ",temp:"+c.temps[i]+"});");
+                }
+                file.WriteLine("genomes.push(markers);");
+            }
+            
             file.Close();
         }
     }
