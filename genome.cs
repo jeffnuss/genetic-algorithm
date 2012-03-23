@@ -19,7 +19,7 @@ namespace graves {
         public double travelDist { get; private set; }
         public double penalty { get; private set; }
         public double fitness {
-            get { return (this.travelDist + this.penalty); }
+            get { return (this.travelDist/* + this.penalty*/); }
             private set { this.fitness = value; }
         }
 
@@ -48,7 +48,9 @@ namespace graves {
         public double distanceTo(int id1, int id2) {
             cemetery c1 = Program.cemsList[id1];
             cemetery c2 = Program.cemsList[id2];
-            return distance(c1.lat, c1.lon, c2.lat, c2.lon, 'M');
+            //double d = distance(c1.lat, c1.lon, c2.lat, c2.lon, 'M');
+            double d = euclidiandistance(c1.lat, c1.lon, c2.lat, c2.lon);
+            return d;
         }
 
         /// <summary>
@@ -111,6 +113,14 @@ namespace graves {
 
             this.penalty = p;
             return p;
+        }
+
+        static private double euclidiandistance(double x0, double y0, double x1, double y1) {
+            // Cities are points x0,y0 and x1,y1 in kilometers or miles or Smoots[1]
+            double dx = (x1 - x0) * 69.1;
+            double dy = (y1 - y0) * 53.0;
+            double dist = Math.Sqrt(dx * dx + dy * dy);
+            return dist;
         }
 
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -192,15 +202,15 @@ namespace graves {
         {
 
             Random crossoverRand = new Random((int)System.DateTime.UtcNow.Ticks);
-            if (crossoverRand.NextDouble() > chanceOfCrossover)
+            if (Program.rand.NextDouble() > chanceOfCrossover)
                 return false;
 
             else
             {
 
                 Random rand = new Random((int)System.DateTime.UtcNow.Ticks);
-                int crossoverSize = rand.Next(1, maxCrossoverSize);
-                int crossoverIndex = rand.Next(0, child.sequence.Count - crossoverSize);
+                int crossoverSize = Program.rand.Next(1, maxCrossoverSize);
+                int crossoverIndex = Program.rand.Next(0, child.sequence.Count - crossoverSize);
                 child.sequence.Reverse(crossoverIndex, crossoverSize);
             }
             return true;
@@ -220,7 +230,7 @@ namespace graves {
                 }
                 else
                 {
-                    int swapIndex = mutateRand.Next(0, child.sequence.Count);
+                    int swapIndex = Program.rand.Next(0, child.sequence.Count);
                     int geneToSwap = child.sequence[swapIndex];
                     child.sequence[swapIndex] = child.sequence[i];
                     child.sequence[i] = geneToSwap;
@@ -240,7 +250,7 @@ namespace graves {
             Random generator = new Random((int)System.DateTime.UtcNow.Ticks);
 
             for (int i = 0; i < list.Count; ++i) {
-                int position = generator.Next(i, list.Count);
+                int position = Program.rand.Next(i, list.Count);
 
                 yield return list[indexes[position]];
 

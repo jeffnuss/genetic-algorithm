@@ -1,10 +1,4 @@
-<!DOCTYPE html><head>
-<title>Genetic Optimization Path</title>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript" src="genome.js"></script>
-<script>
-	
+
 	$(document).ready(function(e) {
 		for(var i in genomes)
 			initialize(40,-111,genomes[i],i);
@@ -75,13 +69,4 @@
 		//Adding a listener
 		google.maps.event.addListener(mymarker, 'click', function() {});
 	}
-</script>
-<style>
-	*{margin:0; padding:0}
-	.map{height:800px; width:100%;}
-</style>
-</head>
-<body>
-	<div id='maps'></div>
-</body>
-</html>
+

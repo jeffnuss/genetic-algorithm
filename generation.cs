@@ -15,6 +15,14 @@ namespace graves {
         /// Calculating the average fitness of the generation
         /// </summary>
         /// <returns></returns>
+        public double fitness() {
+            return genomes[0].fitness;
+        }
+
+        /// <summary>
+        /// Calculating the average fitness of the generation
+        /// </summary>
+        /// <returns></returns>
         public double avgFitness(){
             int num = 0;
             double total = 0;
