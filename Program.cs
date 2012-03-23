@@ -11,7 +11,9 @@ namespace graves {
         //All cemeteries read in from the data file
         static public Dictionary<int, cemetery> cems = new Dictionary<int, cemetery>();
         static public List<cemetery> cemsList = new List<cemetery>();
+        static public List<generation> genealogy = new List<generation>();  //keeps track of all the generations
 
+        //Algoritm parameters
         static public int idealTemp = 65;
         static int generationSize = 24;
         static int tournamentSize = 2;
@@ -64,14 +66,19 @@ namespace graves {
                 nextGeneration = new List<genome>();
                 nextGeneration = elitismTest(parents, children);
 
+                //Keeping track of each generation for reporting purposes
+                genealogy.Add(new generation(nextGeneration));
+
                 // 3a: Do crossover
                 // 3b: Do mutation
                 // 3c: Do elitism           
             }
             // ---- End Loop ------ //
             
-            //Step 4: Generate Report
-            
+            //Step 4: Generate Reports
+            foreach (generation g in genealogy) {
+                Console.WriteLine("Fitness: " + g.avgFitness());
+            }
 
             
             //Outputting the results
@@ -82,12 +89,16 @@ namespace graves {
             }
 
             //Generating the maps
-            createReport(nextGeneration);
+            Console.WriteLine("Writing maps...");
+            mapReport(nextGeneration);
+            Console.WriteLine("Writing progress report...");
+            progressReport(genealogy);
 
             //Pausing after running
             Console.WriteLine("Completed the Algorithm");
             System.Diagnostics.Process.Start("maps.html");
-            Console.ReadLine();
+            System.Diagnostics.Process.Start("report.html");
+            //Console.ReadLine();
         }
 
         /// <summary>
@@ -178,7 +189,7 @@ namespace graves {
         /// <summary>
         /// Writes information to a javascript file that will generate a map of the path
         /// </summary>
-        public static void createReport(List<genome> genomes) {
+        public static void mapReport(List<genome> genomes) {
 
             //Initializing the file
             System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
@@ -196,6 +207,37 @@ namespace graves {
                 file.WriteLine("genomes.push(markers);");
             }
             
+            file.Close();
+        }
+
+        /// <summary>
+        /// Generating a report about the progress of the algorithm
+        /// </summary>
+        /// <param name="gens"></param>
+        public static void progressReport(List<generation> gens){
+            string report = "<html><body><table border='1' cellpadding='1' >";
+
+            //Table headers
+            report += "<tr>";
+            report += "<th>Generation</th>";
+            report += "<th>Average Fitness</th>";
+            report += "<th>Best Fitness</th>";
+            report += "<th>Worst Fitness</th>";
+            report += "</tr>\n";
+
+            int i = 0;
+            foreach (generation g in gens) {
+                i++;
+                report += "<tr>";
+                report += "<td>" + i + "</td>";
+                report += "<td>" + g.avgFitness() + "</td>";
+                report += "<td>" + g.bestFitness() + "</td>";
+                report += "<td>" + g.worstFitness() + "</td>";
+                report += "</tr>\n";
+            }
+            report += "</table></body></html>";
+            System.IO.StreamWriter file = new System.IO.StreamWriter("report.html");
+            file.Write(report);
             file.Close();
         }
     }
