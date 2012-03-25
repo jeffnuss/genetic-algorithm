@@ -21,15 +21,24 @@ namespace graves {
         //Algoritm parameters
         static public int idealTemp = 65;
         static int generationSize = 24;
-        static int tournamentSize = 4;
-        static double chanceOfCrossover = .999;
-        static double chanceOfMutation = 0.5;
+        static int tournamentSize = 2;
+        static double chanceOfCrossover = .85;
+        static double chanceOfMutation = 0.01;
         static double eta = 0.5;
         static double beta = 0.5;
-        static int maxCrossoverSize = 185;
-        static int totalGenerations = 5000;
+        static int maxCrossoverSize = 50;
+        static int totalGenerations = 10000;
 
         static void Main(string[] args) {
+            
+            //Getting command line parameters
+            if (args.Length > 0) {
+                Program.chanceOfMutation  = Double.Parse(args[0]);
+                Program.chanceOfCrossover = Double.Parse(args[1]);
+                Program.totalGenerations = int.Parse(args[2]);
+                reportname = "mute=" + Program.chanceOfMutation + "-cross=" + Program.chanceOfCrossover + "-runs=" + Program.totalGenerations + ".html";
+            }
+
 
             //A friendly welcoming message
             Console.WriteLine("Welcome to the Cemetery Distance Calculator.  Reading the data");
@@ -81,17 +90,17 @@ namespace graves {
             // ---- End Loop ------ //
             
             //Step 4: Generate Reports
-            foreach (generation g in genealogy) {
-                Console.WriteLine("Fitness: " + g.avgFitness());
-            }
+            //foreach (generation g in genealogy) {
+            //    Console.WriteLine("Fitness: " + g.avgFitness());
+            //}
 
             
             //Outputting the results
-            Console.WriteLine("\nResults:");
-            foreach (genome g in nextGeneration)
-            {
-                Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
-            }
+            //Console.WriteLine("\nResults:");
+            //foreach (genome g in nextGeneration)
+            //{
+            //    Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
+            //}
 
             //Generating the maps
             Console.WriteLine("Writing maps...");
@@ -100,8 +109,8 @@ namespace graves {
             progressReport(genealogy);
 
             //Pausing after running
-            Console.WriteLine("Completed the Algorithm");
-            System.Diagnostics.Process.Start(Program.reportname);
+            //Console.WriteLine("Completed the Algorithm");
+           // System.Diagnostics.Process.Start(Program.reportname);
             //Console.ReadLine();
         }
 
@@ -276,22 +285,43 @@ namespace graves {
             report += "</tr>\n";
 
             int i = 0;
+            string csv = "";
             foreach (generation g in gens) {
                 i++;
-                if (i % 4 == 0) {   //Only writing every few points
+                if (i % 2 == 0) {   //Only writing every few points
+                    double f = g.fitness();
                     report += "<tr>";
                     report += "<td>" + i + "</td>";
-                    report += "<td>" + g.fitness() + "</td>";
+                    report += "<td>" + f + "</td>";
                     //report += "<td>" + g.avgFitness() + "</td>";
                     //report += "<td>" + g.bestFitness() + "</td>";
                     //report += "<td>" + g.worstFitness() + "</td>";
                     report += "</tr>\n";
+                    csv += i +"," + f + "\n";
                 }
             }
             report += "</table></body></html>";
+
+            //Making the file names
+            string name = gens[gens.Count - 1].avgFitness() + "-" + Program.chanceOfMutation + "-" + Program.chanceOfCrossover + "-" + Program.totalGenerations;
+            Program.reportname = name + ".html";
+            string csvname = name + ".csv";
+
+            //Writing the html
             System.IO.StreamWriter file = new System.IO.StreamWriter(Program.reportname);
             file.Write(report);
             file.Close();
+
+            //Writing the csv file
+            System.IO.StreamWriter csvfile = new System.IO.StreamWriter(csvname);
+            csvfile.Write(csv);
+            csvfile.Close();
+
+            //Writing to the log
+            using (StreamWriter w = File.AppendText("log.csv")) {
+                w.WriteLine(gens[gens.Count - 1].avgFitness() + "," + Program.chanceOfMutation + "," + Program.chanceOfCrossover + "," + Program.totalGenerations + "," + Program.generationSize + "," + Program.tournamentSize + "," + Program.maxCrossoverSize);
+                w.Close();
+            }
         }
     }
 }
