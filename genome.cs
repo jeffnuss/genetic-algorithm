@@ -188,6 +188,10 @@ namespace graves {
             return child;
         }
 
+        /// <summary>
+        /// Use serialization to make a deep copy
+        /// </summary>
+        /// <returns>A clone of the object</returns>
         public object Clone()
         {
             BinaryFormatter BF = new BinaryFormatter();
