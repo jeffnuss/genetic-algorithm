@@ -27,7 +27,7 @@ namespace graves {
         static double eta = 0.5;
         static double beta = 0.5;
         static int maxCrossoverSize = 50;
-        static int totalGenerations = 10000;
+        static int totalGenerations = 1000;
 
         static void Main(string[] args) {
             
@@ -110,7 +110,7 @@ namespace graves {
 
             //Pausing after running
             //Console.WriteLine("Completed the Algorithm");
-           // System.Diagnostics.Process.Start(Program.reportname);
+            System.Diagnostics.Process.Start(Program.reportname);
             //Console.ReadLine();
         }
 
@@ -231,7 +231,7 @@ namespace graves {
         public static string mapdata(genome g) {
 
             //Initializing the file
-            System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
+            //System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
 
             string data = "var genomes = new Array();\n";
             data += "var markers;\n";
@@ -242,6 +242,19 @@ namespace graves {
             }
             data += "genomes.push(markers);";
 
+            return data;
+        }
+
+        public static string chartData(List<generation> gens) {
+            string data = "chartdata = new Array();\n";
+            int i = 0;
+            foreach (generation g in gens) {
+                i++;
+                if (i % 2 == 0) {   //Only writing every few points
+                    double f = g.fitness();
+                    data += "chartdata.push([" + i + "," + f + "]);\n";                   
+                }
+            }
             return data;
         }
 
@@ -256,10 +269,13 @@ namespace graves {
             report += "<title>Genetic Optimization Path</title>";
             report += "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js\"></script>";
             report += "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?sensor=false\"></script>";
-            report += "<script type=\"text/javascript\" >"+mapdata(gens[gens.Count-1].genomes[0])+" </script>";
+            report += "<script type=\"text/javascript\" >"+mapdata(gens[gens.Count-1].genomes[0])+" \n "+chartData(gens)+" </script>";            
+            report += "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
             report += "<script type=\"text/javascript\" src=\"mapgenome.js\"></script>";
-            report += "<style> *{margin:0; padding:0} .map{height:600px; width:100%;} </style>";
-            report += "</head><body><div id='maps'></div>";
+            report += "<style> *{margin:0; padding:0} .map{height:600px; width:100%; } #chart_div{width:100%; height:600px} </style>";
+            report += "</head><body>";
+            report += "<div id='maps'></div>";
+            report += "<div id='chart_div'></div>\n";
 
             //Parameters
             report += "<table border='1' cellpadding='1'>";
