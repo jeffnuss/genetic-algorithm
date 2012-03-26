@@ -23,7 +23,7 @@ namespace graves {
         static int generationSize = 24;
         static int tournamentSize = 2;
         static double chanceOfCrossover = .85;
-        static double chanceOfMutation = 0.01;
+        static double chanceOfMutation = 0.5;
         static double eta = 0.5;
         static double beta = 0.5;
         static int maxCrossoverSize = 50;
@@ -245,13 +245,18 @@ namespace graves {
             return data;
         }
 
+        /// <summary>
+        /// Makes data for the google chart
+        /// </summary>
+        /// <param name="gens"></param>
+        /// <returns></returns>
         public static string chartData(List<generation> gens) {
             string data = "chartdata = new Array();\n";
             int i = 0;
             foreach (generation g in gens) {
                 i++;
                 if (i % 2 == 0) {   //Only writing every few points
-                    double f = g.fitness();
+                    double f = g.bestFitness();
                     data += "chartdata.push([" + i + "," + f + "]);\n";                   
                 }
             }
@@ -292,36 +297,36 @@ namespace graves {
             report += "</table><hr>";
 
             //Table headers
-            report += "<table border='1' cellpadding='1' >";
-            report += "<tr>";
-            report += "<th>Generation</th>";
-            report += "<th>Average Fitness</th>";
-            //report += "<th>Best Fitness</th>";
-            //report += "<th>Worst Fitness</th>";
-            report += "</tr>\n";
+            //report += "<table border='1' cellpadding='1' >";
+            //report += "<tr>";
+            //report += "<th>Generation</th>";
+            //report += "<th>Average Fitness</th>";
+            ////report += "<th>Best Fitness</th>";
+            ////report += "<th>Worst Fitness</th>";
+            //report += "</tr>\n";
 
-            int i = 0;
+            //int i = 0;
             string csv = "";
-            foreach (generation g in gens) {
-                i++;
-                if (i % 2 == 0) {   //Only writing every few points
-                    double f = g.fitness();
-                    report += "<tr>";
-                    report += "<td>" + i + "</td>";
-                    report += "<td>" + f + "</td>";
-                    //report += "<td>" + g.avgFitness() + "</td>";
-                    //report += "<td>" + g.bestFitness() + "</td>";
-                    //report += "<td>" + g.worstFitness() + "</td>";
-                    report += "</tr>\n";
-                    csv += i +"," + f + "\n";
-                }
-            }
+            //foreach (generation g in gens) {
+            //    i++;
+            //    if (i % 2 == 0) {   //Only writing every few points
+            //        double f = g.fitness();
+            //        report += "<tr>";
+            //        report += "<td>" + i + "</td>";
+            //        report += "<td>" + f + "</td>";
+            //        //report += "<td>" + g.avgFitness() + "</td>";
+            //        //report += "<td>" + g.bestFitness() + "</td>";
+            //        //report += "<td>" + g.worstFitness() + "</td>";
+            //        report += "</tr>\n";
+            //        csv += i +"," + f + "\n";
+            //    }
+            //}
             report += "</table></body></html>";
 
             //Making the file names
             string name = gens[gens.Count - 1].avgFitness() + "-" + Program.chanceOfMutation + "-" + Program.chanceOfCrossover + "-" + Program.totalGenerations;
-            Program.reportname = name + ".html";
-            string csvname = name + ".csv";
+            Program.reportname = "reports\\" + name + ".html";
+            string csvname = "reports\\" + name + ".csv";
 
             //Writing the html
             System.IO.StreamWriter file = new System.IO.StreamWriter(Program.reportname);
