@@ -8,21 +8,37 @@ using Microsoft.VisualBasic.FileIO;
 namespace graves {
     class Program {
 
+        //Start time
+        static public double start = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+        static public string reportname = String.Format("{0:h-mm-ss-tt}", DateTime.Now) + ".html";
+        static public Random rand = new Random((int)System.DateTime.UtcNow.Ticks);
+
         //All cemeteries read in from the data file
         static public Dictionary<int, cemetery> cems = new Dictionary<int, cemetery>();
         static public List<cemetery> cemsList = new List<cemetery>();
+        static public List<generation> genealogy = new List<generation>();  //keeps track of all the generations
 
+        //Algoritm parameters
         static public int idealTemp = 65;
         static int generationSize = 24;
         static int tournamentSize = 2;
-        static double chanceOfCrossover = 0.8;
-        static double chanceOfMutation = 0.001;
+        static double chanceOfCrossover = .85;
+        static double chanceOfMutation = 0.01;
         static double eta = 0.5;
         static double beta = 0.5;
-        static int maxCrossoverSize = 30;
-        static int totalGenerations = 1000;
+        static int maxCrossoverSize = 50;
+        static int totalGenerations = 10000;
 
         static void Main(string[] args) {
+            
+            //Getting command line parameters
+            if (args.Length > 0) {
+                Program.chanceOfMutation  = Double.Parse(args[0]);
+                Program.chanceOfCrossover = Double.Parse(args[1]);
+                Program.totalGenerations = int.Parse(args[2]);
+                reportname = "mute=" + Program.chanceOfMutation + "-cross=" + Program.chanceOfCrossover + "-runs=" + Program.totalGenerations + ".html";
+            }
+
 
             //A friendly welcoming message
             Console.WriteLine("Welcome to the Cemetery Distance Calculator.  Reading the data");
@@ -37,8 +53,6 @@ namespace graves {
 
                 genome g = new genome(beta, eta, maxCrossoverSize);
                 g.randomize();
-                // This is to allow our random number generator seeds to be a bit different
-                System.Threading.Thread.Sleep(10);
                 startgen.Add(g);               
                 
                 Console.WriteLine("Travel Miles: " + g.travelDist + " | Penalty: " + g.penalty);
@@ -49,14 +63,13 @@ namespace graves {
             // 3a-1: Figure out parents
             List<genome> nextGeneration = startgen;
             for (int i = 0; i < totalGenerations; i++) {
-                Console.WriteLine("Total Generation " + i);
+                
                 List<genome> parents = getParents(nextGeneration, tournamentSize);
                 List<genome> children = new List<genome>();
 
                 //double alphaInner = 1 - ((i - 1) / totalGenerations);
 
-                foreach (genome g in parents) {
-
+                foreach (genome g in parents) {                    
                     genome childToAdd = g.getChild(chanceOfCrossover, chanceOfMutation);
                     children.Add(childToAdd);
                 }
@@ -64,29 +77,41 @@ namespace graves {
                 nextGeneration = new List<genome>();
                 nextGeneration = elitismTest(parents, children);
 
+                //Keeping track of each generation for reporting purposes
+                generation gen = new generation(nextGeneration);
+                genealogy.Add(gen);
+
+                if (i % 100 == 0) 
+                    Console.WriteLine(" Generation " + i + " | Average Fitness:" + gen.avgFitness() );
                 // 3a: Do crossover
                 // 3b: Do mutation
                 // 3c: Do elitism           
             }
             // ---- End Loop ------ //
             
-            //Step 4: Generate Report
-            
+            //Step 4: Generate Reports
+            //foreach (generation g in genealogy) {
+            //    Console.WriteLine("Fitness: " + g.avgFitness());
+            //}
 
             
             //Outputting the results
-            Console.WriteLine("\nResults:");
-            foreach (genome g in nextGeneration)
-            {
-                Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
-            }
+            //Console.WriteLine("\nResults:");
+            //foreach (genome g in nextGeneration)
+            //{
+            //    Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
+            //}
 
             //Generating the maps
-            createReport(nextGeneration);
+            Console.WriteLine("Writing maps...");
+            mapReport(nextGeneration);
+            Console.WriteLine("Writing progress report...");
+            progressReport(genealogy);
 
             //Pausing after running
-            Console.WriteLine("Completed the Algorithm");
-            Console.ReadLine();
+            //Console.WriteLine("Completed the Algorithm");
+           // System.Diagnostics.Process.Start(Program.reportname);
+            //Console.ReadLine();
         }
 
         /// <summary>
@@ -149,7 +174,7 @@ namespace graves {
                 List<genome> candidates = new List<genome>();
                 for (int j = 0; j < tournamentSize; j++) {
 
-                    int randomNumber = randTourneyPlayer.Next(0, generation.Count - 1);
+                    int randomNumber = Program.rand.Next(0, generation.Count - 1);
                     candidates.Add(generation[randomNumber]);
                 }
                 parents.Add(candidates.Min());
@@ -177,7 +202,7 @@ namespace graves {
         /// <summary>
         /// Writes information to a javascript file that will generate a map of the path
         /// </summary>
-        public static void createReport(List<genome> genomes) {
+        public static void mapReport(List<genome> genomes) {
 
             //Initializing the file
             System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
@@ -196,6 +221,107 @@ namespace graves {
             }
             
             file.Close();
+        }
+
+        /// <summary>
+        /// Gets map data for a single genome
+        /// </summary>
+        /// <param name="g"></param>
+        /// <returns></returns>
+        public static string mapdata(genome g) {
+
+            //Initializing the file
+            System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
+
+            string data = "var genomes = new Array();\n";
+            data += "var markers;\n";
+            data += "markers = new Array();";
+            foreach (int i in g.sequence) {
+                cemetery c = cemsList[i];
+                data += "markers.push({title:\"" + c.name + "\",lat:" + c.lat + ",lon:" + c.lon + ",temp:" + c.temps[i] + "});";
+            }
+            data += "genomes.push(markers);";
+
+            return data;
+        }
+
+        /// <summary>
+        /// Generating a report about the progress of the algorithm
+        /// </summary>
+        /// <param name="gens"></param>
+        public static void progressReport(List<generation> gens){
+            string report = "<html><head>";
+
+            //Adding javascript
+            report += "<title>Genetic Optimization Path</title>";
+            report += "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js\"></script>";
+            report += "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?sensor=false\"></script>";
+            report += "<script type=\"text/javascript\" >"+mapdata(gens[gens.Count-1].genomes[0])+" </script>";
+            report += "<script type=\"text/javascript\" src=\"mapgenome.js\"></script>";
+            report += "<style> *{margin:0; padding:0} .map{height:600px; width:100%;} </style>";
+            report += "</head><body><div id='maps'></div>";
+
+            //Parameters
+            report += "<table border='1' cellpadding='1'>";
+            report += "<tr><td colspan='2'><b>Report Generated "+DateTime.Now+"</b></td></tr>";
+            report += "<tr><td>Ideal Temp</td><td>" + Program.idealTemp + "</td></tr>";
+            report += "<tr><td>generationSize</td><td>" + Program.generationSize + "</td></tr>";
+            report += "<tr><td>tournamentSize</td><td>" + Program.tournamentSize + "</td></tr>";
+            report += "<tr><td>chanceOfCrossover</td><td>" + Program.chanceOfCrossover + "</td></tr>";
+            report += "<tr><td>chanceOfMutation</td><td>" + Program.chanceOfMutation + "</td></tr>";
+            report += "<tr><td>maxCrossoverSize</td><td>" + Program.maxCrossoverSize + "</td></tr>";
+            report += "<tr><td>totalGenerations</td><td>" + Program.totalGenerations + "</td></tr>";
+            report += "<tr><td>Secods to Run</td><td>" + (DateTime.UtcNow.TimeOfDay.TotalSeconds - Program.start) + "</td></tr>";
+            report += "<tr><td>Best Fitness</td><td style='color:#068d5c; font-weight:bold;'>" + gens[gens.Count - 1].avgFitness() + "</td></tr>";
+            report += "</table><hr>";
+
+            //Table headers
+            report += "<table border='1' cellpadding='1' >";
+            report += "<tr>";
+            report += "<th>Generation</th>";
+            report += "<th>Average Fitness</th>";
+            //report += "<th>Best Fitness</th>";
+            //report += "<th>Worst Fitness</th>";
+            report += "</tr>\n";
+
+            int i = 0;
+            string csv = "";
+            foreach (generation g in gens) {
+                i++;
+                if (i % 2 == 0) {   //Only writing every few points
+                    double f = g.fitness();
+                    report += "<tr>";
+                    report += "<td>" + i + "</td>";
+                    report += "<td>" + f + "</td>";
+                    //report += "<td>" + g.avgFitness() + "</td>";
+                    //report += "<td>" + g.bestFitness() + "</td>";
+                    //report += "<td>" + g.worstFitness() + "</td>";
+                    report += "</tr>\n";
+                    csv += i +"," + f + "\n";
+                }
+            }
+            report += "</table></body></html>";
+
+            //Making the file names
+            string name = gens[gens.Count - 1].avgFitness() + "-" + Program.chanceOfMutation + "-" + Program.chanceOfCrossover + "-" + Program.totalGenerations;
+            Program.reportname = name + ".html";
+            string csvname = name + ".csv";
+
+            //Writing the html
+            System.IO.StreamWriter file = new System.IO.StreamWriter(Program.reportname);
+            file.Write(report);
+            file.Close();
+
+            //Writing the csv file
+            System.IO.StreamWriter csvfile = new System.IO.StreamWriter(csvname);
+            csvfile.Write(csv);
+            csvfile.Close();
+
+            //Writing to the log
+            using (StreamWriter w = File.AppendText("log.csv")) {
+                w.WriteLine(gens[gens.Count - 1].avgFitness() + "," + Program.chanceOfMutation + "," + Program.chanceOfCrossover + "," + Program.totalGenerations + "," + Program.generationSize + "," + Program.tournamentSize + "," + Program.maxCrossoverSize);
+                w.Close();
+            }
         }
     }
 }
