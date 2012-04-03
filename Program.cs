@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Microsoft.VisualBasic.FileIO;
+using System.Diagnostics;
 
 namespace graves {
     class Program {
@@ -26,8 +27,8 @@ namespace graves {
         static double chanceOfMutation = 0.01;
         static double eta = 0.5;
         static double beta = 0.5;
-        static int maxCrossoverSize = 50;
-        static int totalGenerations = 10000;
+        static int maxCrossoverSize = 70;
+        static int totalGenerations = 5000; 
 
         static void Main(string[] args) {
             
@@ -83,6 +84,9 @@ namespace graves {
 
                 if (i % 100 == 0) 
                     Console.WriteLine(" Generation " + i + " | Average Fitness:" + gen.avgFitness() );
+
+                if (i == 500)
+                    Console.WriteLine("hello");
                 // 3a: Do crossover
                 // 3b: Do mutation
                 // 3c: Do elitism           
@@ -190,13 +194,25 @@ namespace graves {
         /// <returns>The strongest of the group</returns>
         private static List<genome> elitismTest(List<genome> parents, List<genome> children) {
 
+            //HashSet<genome> parentsAndChildrenList = new HashSet<genome>();
             List<genome> parentsAndChildrenList = new List<genome>(parents);
             parentsAndChildrenList.AddRange(children);
             parentsAndChildrenList.Sort();
+            HashSet<genome> nextGeneration = new HashSet<genome>();
 
-            List<genome> nextGeneration = new List<genome>(parentsAndChildrenList.GetRange(0, parents.Count));
+            children.Sort();
+            parents.Sort();
 
-            return nextGeneration;
+            int i = 0;
+            while (nextGeneration.Count < parents.Count) {
+
+                nextGeneration.Add(parentsAndChildrenList[i]);
+                i++;
+            }
+
+            //List<genome> nextGeneration = new List<genome>(parentsAndChildrenList.GetRange(0, parents.Count));
+
+            return nextGeneration.ToList();
         }
 
         /// <summary>

@@ -202,6 +202,21 @@ namespace graves {
             return (BF.Deserialize(memStream));
         }
 
+        public override bool Equals(object obj)
+        {
+            genome other = (genome)obj;
+            if (other == null) {
+                return false;
+            }
+            bool test = this.fitness == other.fitness;
+            return (this.fitness == other.fitness);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.fitness.GetHashCode();
+        }
+
         private bool crossover(genome child, double chanceOfCrossover)
         {
 
