@@ -24,11 +24,11 @@ namespace graves {
         static int generationSize = 24;
         static int tournamentSize = 2;
         static double chanceOfCrossover = .85;
-        static double chanceOfMutation = 0.01;
+        static double chanceOfMutation = 0.5;
         static double eta = 0.5;
         static double beta = 0.5;
-        static int maxCrossoverSize = 70;
-        static int totalGenerations = 5000; 
+        static int maxCrossoverSize = 50;
+        static int totalGenerations = 1000;
 
         static void Main(string[] args) {
             
@@ -114,7 +114,7 @@ namespace graves {
 
             //Pausing after running
             //Console.WriteLine("Completed the Algorithm");
-           // System.Diagnostics.Process.Start(Program.reportname);
+            System.Diagnostics.Process.Start(Program.reportname);
             //Console.ReadLine();
         }
 
@@ -247,7 +247,7 @@ namespace graves {
         public static string mapdata(genome g) {
 
             //Initializing the file
-            System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
+            //System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
 
             string data = "var genomes = new Array();\n";
             data += "var markers;\n";
@@ -262,6 +262,24 @@ namespace graves {
         }
 
         /// <summary>
+        /// Makes data for the google chart
+        /// </summary>
+        /// <param name="gens"></param>
+        /// <returns></returns>
+        public static string chartData(List<generation> gens) {
+            string data = "chartdata = new Array();\n";
+            int i = 0;
+            foreach (generation g in gens) {
+                i++;
+                if (i % 2 == 0) {   //Only writing every few points
+                    double f = g.bestFitness();
+                    data += "chartdata.push([" + i + "," + f + "]);\n";                   
+                }
+            }
+            return data;
+        }
+
+        /// <summary>
         /// Generating a report about the progress of the algorithm
         /// </summary>
         /// <param name="gens"></param>
@@ -272,10 +290,13 @@ namespace graves {
             report += "<title>Genetic Optimization Path</title>";
             report += "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js\"></script>";
             report += "<script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?sensor=false\"></script>";
-            report += "<script type=\"text/javascript\" >"+mapdata(gens[gens.Count-1].genomes[0])+" </script>";
+            report += "<script type=\"text/javascript\" >"+mapdata(gens[gens.Count-1].genomes[0])+" \n "+chartData(gens)+" </script>";            
+            report += "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>";
             report += "<script type=\"text/javascript\" src=\"mapgenome.js\"></script>";
-            report += "<style> *{margin:0; padding:0} .map{height:600px; width:100%;} </style>";
-            report += "</head><body><div id='maps'></div>";
+            report += "<style> *{margin:0; padding:0} .map{height:600px; width:100%; } #chart_div{width:100%; height:600px} </style>";
+            report += "</head><body>";
+            report += "<div id='maps'></div>";
+            report += "<div id='chart_div'></div>\n";
 
             //Parameters
             report += "<table border='1' cellpadding='1'>";
@@ -292,36 +313,36 @@ namespace graves {
             report += "</table><hr>";
 
             //Table headers
-            report += "<table border='1' cellpadding='1' >";
-            report += "<tr>";
-            report += "<th>Generation</th>";
-            report += "<th>Average Fitness</th>";
-            //report += "<th>Best Fitness</th>";
-            //report += "<th>Worst Fitness</th>";
-            report += "</tr>\n";
+            //report += "<table border='1' cellpadding='1' >";
+            //report += "<tr>";
+            //report += "<th>Generation</th>";
+            //report += "<th>Average Fitness</th>";
+            ////report += "<th>Best Fitness</th>";
+            ////report += "<th>Worst Fitness</th>";
+            //report += "</tr>\n";
 
-            int i = 0;
+            //int i = 0;
             string csv = "";
-            foreach (generation g in gens) {
-                i++;
-                if (i % 2 == 0) {   //Only writing every few points
-                    double f = g.fitness();
-                    report += "<tr>";
-                    report += "<td>" + i + "</td>";
-                    report += "<td>" + f + "</td>";
-                    //report += "<td>" + g.avgFitness() + "</td>";
-                    //report += "<td>" + g.bestFitness() + "</td>";
-                    //report += "<td>" + g.worstFitness() + "</td>";
-                    report += "</tr>\n";
-                    csv += i +"," + f + "\n";
-                }
-            }
+            //foreach (generation g in gens) {
+            //    i++;
+            //    if (i % 2 == 0) {   //Only writing every few points
+            //        double f = g.fitness();
+            //        report += "<tr>";
+            //        report += "<td>" + i + "</td>";
+            //        report += "<td>" + f + "</td>";
+            //        //report += "<td>" + g.avgFitness() + "</td>";
+            //        //report += "<td>" + g.bestFitness() + "</td>";
+            //        //report += "<td>" + g.worstFitness() + "</td>";
+            //        report += "</tr>\n";
+            //        csv += i +"," + f + "\n";
+            //    }
+            //}
             report += "</table></body></html>";
 
             //Making the file names
             string name = gens[gens.Count - 1].avgFitness() + "-" + Program.chanceOfMutation + "-" + Program.chanceOfCrossover + "-" + Program.totalGenerations;
-            Program.reportname = name + ".html";
-            string csvname = name + ".csv";
+            Program.reportname = "reports\\" + name + ".html";
+            string csvname = "reports\\" + name + ".csv";
 
             //Writing the html
             System.IO.StreamWriter file = new System.IO.StreamWriter(Program.reportname);

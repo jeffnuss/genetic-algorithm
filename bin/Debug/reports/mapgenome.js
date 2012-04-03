@@ -1,8 +1,30 @@
+	//Loading the chart API
+	google.load("visualization", "1", {packages:["corechart"]});
+
+	//Creates the chart		
+   	google.setOnLoadCallback(drawChart);
 
 	$(document).ready(function(e) {
 		for(var i in genomes)
 			initialize(40,-111,genomes[i],i);
+
 	});
+	
+	
+
+function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'Generations');
+        data.addColumn('number', 'Fitness');
+        data.addRows(chartdata);
+
+        var options = {
+          title: 'Algorithm Convergence'
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+    }
 	
 	//Initializing the google map
 	function initialize(lat,lon,genome,iter){
