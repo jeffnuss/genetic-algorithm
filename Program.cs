@@ -25,6 +25,7 @@ namespace graves {
         static int tournamentSize = 2;
         static double chanceOfCrossover = .85;
         static double chanceOfMutation = 0.5;
+        static public double penaltyMultiplier = 1;
         static double eta = 0.5;
         static double beta = 0.5;
         static int maxCrossoverSize = 50;

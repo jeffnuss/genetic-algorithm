@@ -99,18 +99,19 @@ namespace graves {
         /// <summary>
         /// Calculating the penalty by taking the difference of the temperature on that day from the ideal
         /// </summary>
-        public int calcPenalty() {
-            int p = 0;
+        public double calcPenalty() {
+            double p = 0;
 
             int day = 0;
             foreach (int i in sequence) {
                 cemetery c = Program.cemsList[i];
                 int temp = c.temps[day];
                 int difference = Math.Abs(Program.idealTemp - temp);
-                p += difference;
+                p += (double)difference;
                 day++;
             }
 
+            p = p * Program.penaltyMultiplier;
             this.penalty = p;
             return p;
         }
