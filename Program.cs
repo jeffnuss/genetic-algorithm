@@ -20,16 +20,14 @@ namespace graves {
         static public List<generation> genealogy = new List<generation>();  //keeps track of all the generations
 
         //Algoritm parameters
-        static public int idealTemp = 65;
+        static public int idealTemp = 76;
         static int generationSize = 24;
         static int tournamentSize = 3;
         static double chanceOfCrossover = .85;
-        static double chanceOfMutation = 0.5;
-        static public double penaltyMultiplier = 1.5;
-        static double eta = 0.5;
-        static double beta = 0.5;
-        static int maxCrossoverSize = 50;
-        static int totalGenerations = 10000;
+        static double chanceOfMutation = 0.4;
+        static public double penaltyMultiplier = 10.0;
+        static int maxCrossoverSize = 80;
+        static int totalGenerations = 40000;
 
         static void Main(string[] args) {
             
@@ -53,7 +51,7 @@ namespace graves {
             List<genome> startgen = new List<genome>();
             for (int i = 0; i < generationSize; i++) {
 
-                genome g = new genome(beta, eta, maxCrossoverSize);
+                genome g = new genome(maxCrossoverSize);
                 g.randomize();
                 startgen.Add(g);               
                 
@@ -62,14 +60,12 @@ namespace graves {
 
             // ---- Start Loop ---- //
 
-            // 3a-1: Figure out parents
+            // 3: Figure out children
             List<genome> nextGeneration = startgen;
             for (int i = 0; i < totalGenerations; i++) {
                 
-                List<genome> parents = getParents(nextGeneration, tournamentSize);
+                List<genome> parents = nextGeneration;
                 List<genome> children = new List<genome>();
-
-                //double alphaInner = 1 - ((i - 1) / totalGenerations);
 
                 foreach (genome g in parents) {                    
                     genome childToAdd = g.getChild(chanceOfCrossover, chanceOfMutation);
@@ -87,43 +83,22 @@ namespace graves {
                 {
                     Console.WriteLine(" Generation " + i + " | Average Fitness:" + gen.avgFitness());
                     Console.WriteLine("                  Best Fitness:" + gen.bestFitness());
-                }
-
-                if (i == 500)
-                    Console.WriteLine("hello");
-                // 3a: Do crossover
-                // 3b: Do mutation
-                // 3c: Do elitism           
+                }     
             }
             // ---- End Loop ------ //
             
             //Step 4: Generate Reports
-            //foreach (generation g in genealogy) {
-            //    Console.WriteLine("Fitness: " + g.avgFitness());
-            //}
-
-            
-            //Outputting the results
-            //Console.WriteLine("\nResults:");
-            //foreach (genome g in nextGeneration)
-            //{
-            //    Console.WriteLine("Fitness: " + g.fitness + " Travel Distance: " + g.travelDist + " Penalty: " + g.penalty);
-            //}
-
             //Generating the maps
             Console.WriteLine("Writing maps...");
             mapReport(nextGeneration);
             Console.WriteLine("Writing progress report...");
             progressReport(genealogy);
 
-            //Pausing after running
-            //Console.WriteLine("Completed the Algorithm");
             System.Diagnostics.Process.Start(Program.reportname);
-            //Console.ReadLine();
         }
 
         /// <summary>
-        /// Reading in the data from the two csv files
+        /// Reading in the data from the csv file
         /// </summary>
         public static void readData() {
             //==========================================
@@ -171,24 +146,6 @@ namespace graves {
             parser.Close();
 
         }
-      
-
-        private static List<genome> getParents(List<genome> generation, int tournamentSize) {
-
-            List<genome> parents = new List<genome>();
-            Random randTourneyPlayer = new Random((int)System.DateTime.UtcNow.Ticks);
-            for (int i = 0; i < generation.Count; i++) {
-                
-                List<genome> candidates = new List<genome>();
-                for (int j = 0; j < tournamentSize; j++) {
-
-                    int randomNumber = Program.rand.Next(0, generation.Count - 1);
-                    candidates.Add(generation[randomNumber]);
-                }
-                parents.Add(candidates.Min());
-            }
-            return parents;
-        }
 
         /// <summary>
         /// Have the children and the parents duke it out in an epic battle royale to see who emerges victorious
@@ -213,8 +170,6 @@ namespace graves {
                 nextGeneration.Add(parentsAndChildrenList[i]);
                 i++;
             }
-
-            //List<genome> nextGeneration = new List<genome>(parentsAndChildrenList.GetRange(0, parents.Count));
 
             return nextGeneration.ToList();
         }
@@ -251,8 +206,6 @@ namespace graves {
         public static string mapdata(genome g) {
 
             //Initializing the file
-            //System.IO.StreamWriter file = new System.IO.StreamWriter("genome.js");
-
             string data = "var genomes = new Array();\n";
             data += "var markers;\n";
             data += "markers = new Array();";
@@ -316,31 +269,7 @@ namespace graves {
             report += "<tr><td>Best Fitness</td><td style='color:#068d5c; font-weight:bold;'>" + gens[gens.Count - 1].avgFitness() + "</td></tr>";
             report += "</table><hr>";
 
-            //Table headers
-            //report += "<table border='1' cellpadding='1' >";
-            //report += "<tr>";
-            //report += "<th>Generation</th>";
-            //report += "<th>Average Fitness</th>";
-            ////report += "<th>Best Fitness</th>";
-            ////report += "<th>Worst Fitness</th>";
-            //report += "</tr>\n";
-
-            //int i = 0;
             string csv = "";
-            //foreach (generation g in gens) {
-            //    i++;
-            //    if (i % 2 == 0) {   //Only writing every few points
-            //        double f = g.fitness();
-            //        report += "<tr>";
-            //        report += "<td>" + i + "</td>";
-            //        report += "<td>" + f + "</td>";
-            //        //report += "<td>" + g.avgFitness() + "</td>";
-            //        //report += "<td>" + g.bestFitness() + "</td>";
-            //        //report += "<td>" + g.worstFitness() + "</td>";
-            //        report += "</tr>\n";
-            //        csv += i +"," + f + "\n";
-            //    }
-            //}
             report += "</table></body></html>";
 
             //Making the file names

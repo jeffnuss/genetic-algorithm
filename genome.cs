@@ -22,20 +22,13 @@ namespace graves {
             get { return (this.travelDist + this.penalty); }
             private set { this.fitness = value; }
         }
-
-        public double eta { get; private set; }
-        public double beta { get; private set; }
         public int maxCrossoverSize { get; private set; }
 
         /// <summary>
         /// Genome constructor
         /// </summary>
-        /// <param name="eta">Crossover coefficient</param>
-        /// <param name="beta">Mutation coefficient</param>
-        public genome(double eta, double beta, int crossoverSize)
+        public genome(int crossoverSize)
         {
-            this.eta = eta;
-            this.beta = beta;
             this.maxCrossoverSize = crossoverSize;
             penalty = 0;
             travelDist = 0;
