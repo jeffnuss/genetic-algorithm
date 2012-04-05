@@ -19,7 +19,11 @@ function drawChart() {
         data.addRows(chartdata);
 
         var options = {
-          title: 'Algorithm Convergence'
+          title: 'Algorithm Convergence',
+		  hAxis: {
+			title: 'Number of Iterations'},
+		  vAxis: {
+			title: 'Fitness'}
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
