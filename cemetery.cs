@@ -12,7 +12,7 @@ namespace graves {
         public string city;
         public string state;
         public string country;
-        public List<int> temps;
+        public List<double> temps;
         
         public double distanceTo(int cemetery_id) {
             cemetery c = Program.cems[cemetery_id];

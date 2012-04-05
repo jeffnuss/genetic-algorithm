@@ -19,7 +19,7 @@ namespace graves {
         public double travelDist { get; private set; }
         public double penalty { get; private set; }
         public double fitness {
-            get { return (this.travelDist/* + this.penalty*/); }
+            get { return (this.travelDist + this.penalty); }
             private set { this.fitness = value; }
         }
 
@@ -105,9 +105,9 @@ namespace graves {
             int day = 0;
             foreach (int i in sequence) {
                 cemetery c = Program.cemsList[i];
-                int temp = c.temps[day];
-                int difference = Math.Abs(Program.idealTemp - temp);
-                p += (double)difference;
+                double temp = c.temps[day];
+                double difference = Math.Abs(Program.idealTemp - temp);
+                p += difference;
                 day++;
             }
 

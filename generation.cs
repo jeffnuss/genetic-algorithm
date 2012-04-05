@@ -38,10 +38,10 @@ namespace graves {
         //Returning the best fitness
         public double bestFitness() {
             int num = 0;
-            double total = 0;
+            double total = genomes[0].fitness;
             foreach (genome g in genomes) {
                 num++;
-                if (g.fitness > total)
+                if (g.fitness < total)
                     total = g.fitness;
             }
             return total;

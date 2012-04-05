@@ -22,14 +22,14 @@ namespace graves {
         //Algoritm parameters
         static public int idealTemp = 65;
         static int generationSize = 24;
-        static int tournamentSize = 2;
+        static int tournamentSize = 3;
         static double chanceOfCrossover = .85;
         static double chanceOfMutation = 0.5;
-        static public double penaltyMultiplier = 1;
+        static public double penaltyMultiplier = 1.5;
         static double eta = 0.5;
         static double beta = 0.5;
         static int maxCrossoverSize = 50;
-        static int totalGenerations = 1000;
+        static int totalGenerations = 10000;
 
         static void Main(string[] args) {
             
@@ -83,8 +83,11 @@ namespace graves {
                 generation gen = new generation(nextGeneration);
                 genealogy.Add(gen);
 
-                if (i % 100 == 0) 
-                    Console.WriteLine(" Generation " + i + " | Average Fitness:" + gen.avgFitness() );
+                if (i % 100 == 0)
+                {
+                    Console.WriteLine(" Generation " + i + " | Average Fitness:" + gen.avgFitness());
+                    Console.WriteLine("                  Best Fitness:" + gen.bestFitness());
+                }
 
                 if (i == 500)
                     Console.WriteLine("hello");
@@ -126,7 +129,7 @@ namespace graves {
             //==========================================
             //      Reading in the cemetery data
             //==========================================
-            TextFieldParser parser = new TextFieldParser(@"data.csv");
+            TextFieldParser parser = new TextFieldParser(@"data3.csv");
             parser.TextFieldType = FieldType.Delimited;
             parser.SetDelimiters(",");
             int i = 0;
@@ -137,8 +140,8 @@ namespace graves {
                 //Reading the line
                 string[] fields = parser.ReadFields();
 
-                //Skipping the first row
-                i++; if (i == 1) continue;
+                //Skipping the first and second row
+                i++; if (i == 1 || i == 2) continue;
 
                 //Creating a new cemetery object
                 cemetery c = new cemetery();
@@ -151,11 +154,11 @@ namespace graves {
                 c.country = fields[6];
 
                 //Reading in the temperature data
-                List<int> temps = new List<int>();
+                List<double> temps = new List<double>();
                 int j = 0;
                 foreach (string f in fields) {
                     j++; if (j <= 7) continue;
-                    temps.Add(int.Parse(f));
+                    temps.Add(double.Parse(f));
                 }
                 c.temps = temps;
 
